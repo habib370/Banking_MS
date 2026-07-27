@@ -6,7 +6,8 @@ const ApiContext = createContext();
 export const ApiProvider = ({ children }) => {
   const api = useMemo(() => {
     const instance = axios.create({
-      baseURL: "http://localhost:8080/api",
+      //baseURL: "http://localhost:8080/api",
+      baseURL: "https://dbms-backend-982z.onrender.com/api",
       headers: {
         "Content-Type": "application/json",
       },
