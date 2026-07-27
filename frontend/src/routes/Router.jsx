@@ -3,8 +3,8 @@ import AppLayout from "../layout/AppLayout.jsx";
 import Home from "../pages/Home.jsx";
 import { Login } from "../components/Login.jsx";
 import { Register } from "../components/Register.jsx";
-import Profile from "../Pages/Profile.jsx";
-import History from "../Pages/History.jsx";
+import Profile from "../pages/Profile.jsx";
+import History from "../pages/History.jsx";
 import SecondaryNavbar from "../components/SecondaryNavbar.jsx";
 
 import TuitionFees from "../pages/Academic/TuitionFees.jsx";
