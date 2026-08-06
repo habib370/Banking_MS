@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/Auth";
-import { useAccount } from "../context/Account"; // Importing Account context
+import { useAccount } from "../context/Account";
 import { useToast } from "../context/Toast";
 import { 
   FaArrowUp, FaArrowDown, FaPaperPlane, 
@@ -9,16 +10,15 @@ import {
 } from "react-icons/fa";
 
 export default function Home() {
+  const navigate = useNavigate();
   const auth = useAuth();
-  const account = useAccount ? useAccount() : auth; // Fallback if hooks are merged
+  const account = useAccount ? useAccount() : auth;
 
   const user = auth?.user;
   const checkBalance = auth?.checkBalance;
   const deposit = auth?.deposit;
   const withdraw = auth?.withdraw;
-  const transferMoney = auth?.transferMoney;
 
-  // Account operations sourced safely from useAccount or useAuth
   const applyLoan = account?.applyLoan || auth?.applyLoan;
   const requestDebitCard = account?.requestDebitCard || auth?.requestDebitCard;
   const checkCardStatus = account?.checkCardStatus || auth?.checkCardStatus;
@@ -27,7 +27,6 @@ export default function Home() {
 
   const [activeAction, setActiveAction] = useState(null);
   const [amount, setAmount] = useState("");
-  const [targetAccount, setTargetAccount] = useState("");
   const [loading, setLoading] = useState(false);
   
   const [loanType, setLoanType] = useState("Home Loan");
@@ -44,10 +43,8 @@ export default function Home() {
         if (!checkCardStatus) return;
         try {
           const res = await checkCardStatus();
-          // Extract response whether nested inside { ok: true, data: {...} } or returned directly
           const cardData = res?.data || res;
           
-          // Check for true boolean flag OR status other than NOT_REQUESTED
           const isRequested = Boolean(
             cardData?.hasCard === true || 
             (cardData?.status && cardData.status !== "NOT_REQUESTED")
@@ -97,18 +94,6 @@ export default function Home() {
           return;
         }
         res = await withdraw(numericAmount);
-      } else if (activeAction === "transfer") {
-        if (!targetAccount) {
-          showToast("Please enter recipient account number", "error");
-          setLoading(false);
-          return;
-        }
-        if (numericAmount > user?.balance) {
-          showToast("Insufficient balance for transfer", "error");
-          setLoading(false);
-          return;
-        }
-        res = await transferMoney(targetAccount, numericAmount);
       } else if (activeAction === "loan") {
         const loanPayload = {
           loanType,
@@ -122,7 +107,6 @@ export default function Home() {
       if (res?.ok) {
         showToast(res.message || "Transaction requested successfully", "success");
         setAmount("");
-        setTargetAccount("");
         if (checkBalance) await checkBalance();
         
         setTimeout(() => {
@@ -187,7 +171,7 @@ export default function Home() {
             icon={<FaPaperPlane />}
             title="Transfer"
             color="purple"
-            onClick={() => setActiveAction("transfer")}
+            onClick={() => navigate("/transfer")}
           />
           <ActionButton
             icon={<FaHandHoldingUsd />}
@@ -276,22 +260,6 @@ export default function Home() {
                     />
                   </div>
                 </>
-              )}
-
-              {activeAction === "transfer" && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Recipient Account Number
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Enter destination account"
-                    className="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    value={targetAccount}
-                    onChange={(e) => setTargetAccount(e.target.value)}
-                    required
-                  />
-                </div>
               )}
 
               <div>

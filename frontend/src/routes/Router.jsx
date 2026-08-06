@@ -32,6 +32,7 @@ import Forex from "../pages/Cards/Forex.jsx";
 import StudentDPS from "../pages/Cards/StudentDPS.jsx";
 import Freelance from "../pages/Cards/Freelance.jsx";
 
+import FundTransferFlow from '../components/FundTransferFlow';
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -47,7 +48,8 @@ export const router = createBrowserRouter([
       { path: "dashboard", element: <Home /> }, // Alias for home
       { path: "profile", element: <Profile /> },
       { path: "history", element: <History /> },
-      { path: "transactions", element: <History /> }, // Alias for history
+      { path: "transactions", element: <History /> },
+      { path: "transfer", element: <FundTransferFlow /> }, // Alias for history
 
       // Academic Routes
       { path: "academic/tuition", element: <TuitionFees /> },
