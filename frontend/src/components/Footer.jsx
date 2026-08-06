@@ -22,8 +22,8 @@ export default function Footer() {
                 <FaBuilding className="text-white" size={28} />
               </div>
               <div>
-                <h2 className="text-2xl font-bold">EliteBank</h2>
-                <p className="text-xs text-blue-300">Since 2024</p>
+                <h2 className="text-2xl font-bold">StudentBank</h2>
+                <p className="text-xs text-blue-300">Since 2026</p>
               </div>
             </div>
             <p className="text-gray-300 text-sm leading-relaxed">
@@ -144,7 +144,7 @@ export default function Footer() {
             </div>
           </div>
           <p className="text-center text-gray-500 text-xs mt-4">
-            EliteBank is a registered trademark. Banking services subject to approval.
+            StudentBank is a registered trademark. Banking services subject to approval.
             This is a demo application for educational purposes.
           </p>
         </div>

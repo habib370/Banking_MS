@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../context/Auth";
+import { useAccount } from "../context/Account"; // Importing Account context
 import { useToast } from "../context/Toast";
 import { 
   FaArrowUp, FaArrowDown, FaPaperPlane, 
@@ -8,16 +9,20 @@ import {
 } from "react-icons/fa";
 
 export default function Home() {
-  const { 
-    user, 
-    checkBalance, 
-    deposit, 
-    withdraw, 
-    transferMoney, 
-    applyLoan, 
-    requestDebitCard,
-    checkCardStatus 
-  } = useAuth();
+  const auth = useAuth();
+  const account = useAccount ? useAccount() : auth; // Fallback if hooks are merged
+
+  const user = auth?.user;
+  const checkBalance = auth?.checkBalance;
+  const deposit = auth?.deposit;
+  const withdraw = auth?.withdraw;
+  const transferMoney = auth?.transferMoney;
+
+  // Account operations sourced safely from useAccount or useAuth
+  const applyLoan = account?.applyLoan || auth?.applyLoan;
+  const requestDebitCard = account?.requestDebitCard || auth?.requestDebitCard;
+  const checkCardStatus = account?.checkCardStatus || auth?.checkCardStatus;
+
   const { showToast } = useToast();
 
   const [activeAction, setActiveAction] = useState(null);
@@ -31,16 +36,27 @@ export default function Home() {
 
   useEffect(() => {
     if (user) {
-      checkBalance().catch(() => console.log("Silent initial balance sync."));
+      if (checkBalance) {
+        checkBalance().catch(() => console.log("Silent initial balance sync."));
+      }
       
       const verifyCardStatus = async () => {
+        if (!checkCardStatus) return;
         try {
           const res = await checkCardStatus();
-          if (res?.ok && res.status) {
-            setCardRequested(true);
-          }
+          // Extract response whether nested inside { ok: true, data: {...} } or returned directly
+          const cardData = res?.data || res;
+          
+          // Check for true boolean flag OR status other than NOT_REQUESTED
+          const isRequested = Boolean(
+            cardData?.hasCard === true || 
+            (cardData?.status && cardData.status !== "NOT_REQUESTED")
+          );
+
+          setCardRequested(isRequested);
         } catch (err) {
           console.error("Failed to verify card status on load", err);
+          setCardRequested(false);
         }
       };
 
@@ -100,14 +116,14 @@ export default function Home() {
           interestRate: getInterestRate(loanType),
           durationMonths: parseInt(durationMonths)
         };
-        res = await applyLoan(loanPayload.amount, loanPayload);
+        res = await applyLoan(loanPayload);
       }
 
       if (res?.ok) {
         showToast(res.message || "Transaction requested successfully", "success");
         setAmount("");
         setTargetAccount("");
-        await checkBalance();
+        if (checkBalance) await checkBalance();
         
         setTimeout(() => {
           setActiveAction(null);
